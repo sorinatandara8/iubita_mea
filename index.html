@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pentru iubita mea 💕</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#ff6b9d;
+    --pink-dark:#e84a80;
+    --pink-light:#ffc2d9;
+    --cream:#fff5f8;
+    --purple:#a663cc;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#ffdde1,#ffc2d9,#ffb8c9);
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+  .bg-hearts{
+    position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+  }
+  .bg-heart{
+    position:absolute; bottom:-10%; font-size:24px; opacity:0.35;
+    animation:floatUp linear infinite;
+  }
+  @keyframes floatUp{
+    to{ transform:translateY(-120vh) rotate(360deg); opacity:0; }
+  }
+  .container{
+    position:relative; z-index:1;
+    max-width:560px; margin:0 auto; padding:24px 16px 60px;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .screen{ display:none; width:100%; text-align:center; animation:fadeIn .5s ease; }
+  .screen.active{ display:flex; flex-direction:column; align-items:center; gap:18px; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
+
+  .card{
+    background:rgba(255,255,255,0.85);
+    border-radius:24px;
+    padding:28px 24px;
+    width:100%;
+    box-shadow:0 12px 40px rgba(232,74,128,0.18);
+    backdrop-filter:blur(6px);
+  }
+  h1{
+    font-family:'Dancing Script',cursive;
+    color:var(--pink-dark);
+    font-size:2.6em;
+    margin:0 0 6px;
+  }
+  h2{ color:var(--pink-dark); margin:0 0 10px; font-size:1.4em; }
+  p{ color:#7a4a5c; line-height:1.5; margin:0 0 8px; }
+  .subtitle{ color:#a5677c; font-size:0.95em; }
+
+  button{
+    font-family:'Poppins',sans-serif;
+    font-weight:600;
+    border:none;
+    border-radius:50px;
+    padding:14px 28px;
+    font-size:1em;
+    cursor:pointer;
+    background:var(--pink);
+    color:white;
+    box-shadow:0 6px 16px rgba(232,74,128,0.35);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  button:hover{ transform:translateY(-2px) scale(1.03); box-shadow:0 8px 22px rgba(232,74,128,0.45); }
+  button:active{ transform:translateY(0) scale(0.98); }
+  button.secondary{
+    background:white; color:var(--pink-dark); border:2px solid var(--pink-light);
+    box-shadow:none;
+  }
+  button:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+
+  /* progress bar */
+  .progress{ display:flex; gap:10px; margin-bottom:6px; }
+  .dot{
+    width:14px; height:14px; border-radius:50%;
+    background:rgba(255,255,255,0.6); border:2px solid var(--pink);
+    transition:all .3s ease;
+  }
+  .dot.done{ background:var(--pink); }
+  .dot.current{ transform:scale(1.3); box-shadow:0 0 0 4px rgba(255,107,157,0.25); }
+
+  /* Quiz */
+  .quiz-options{ display:flex; flex-direction:column; gap:10px; width:100%; }
+  .quiz-options button{ background:white; color:var(--pink-dark); border:2px solid var(--pink-light); box-shadow:none; text-align:left; }
+  .quiz-options button.picked{ background:var(--pink); color:white; }
+  .quiz-reply{ min-height:26px; font-weight:600; color:var(--purple); }
+
+  /* Memory */
+  .memory-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:100%; max-width:340px;
+  }
+  .memory-card{
+    aspect-ratio:1/1; border-radius:12px; background:var(--pink);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.6em; cursor:pointer; user-select:none;
+    box-shadow:0 4px 10px rgba(232,74,128,0.25);
+    transform:scale(1); transition:transform .15s ease;
+  }
+  .memory-card.flipped, .memory-card.matched{ background:white; border:2px solid var(--pink-light); }
+  .memory-card.matched{ opacity:0.55; cursor:default; }
+  .memory-status{ color:var(--pink-dark); font-weight:600; }
+
+  /* Catch hearts */
+  .catch-area{
+    position:relative; width:100%; height:340px; background:rgba(255,255,255,0.5);
+    border-radius:18px; overflow:hidden; border:2px dashed var(--pink-light);
+  }
+  .falling-heart{
+    position:absolute; top:-30px; font-size:28px; cursor:pointer; user-select:none;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{ to{ top:105%; } }
+  .catch-hud{ display:flex; justify-content:space-between; width:100%; color:var(--pink-dark); font-weight:600; }
+
+  /* Maze */
+  .maze-grid{
+    display:grid; gap:2px; background:var(--pink-dark); padding:4px; border-radius:12px;
+  }
+  .maze-cell{ width:36px; height:36px; background:white; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .maze-cell.wall{ background:var(--pink-dark); }
+  .maze-controls{ display:grid; grid-template-columns:repeat(3,48px); grid-template-rows:repeat(2,44px); gap:6px; margin-top:6px; }
+  .maze-controls button{ padding:0; font-size:1.2em; }
+
+  /* Final question */
+  .final-buttons{ position:relative; width:100%; height:150px; }
+  #btnDa{ font-size:1.2em; padding:18px 36px; animation:pulse 1.4s infinite; }
+  #btnNu{ position:absolute; }
+  @keyframes pulse{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.06);} }
+
+  .final-buttons-row{ display:flex; gap:20px; justify-content:center; align-items:center; position:relative; }
+
+  /* celebration */
+  .confetti-heart{ position:fixed; top:-40px; font-size:22px; pointer-events:none; z-index:5; animation:confettiFall linear forwards; }
+  @keyframes confettiFall{ to{ transform:translateY(110vh) rotate(400deg); opacity:0.2; } }
+
+  .footer-note{ font-size:0.8em; color:#b98698; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<div class="bg-hearts" id="bgHearts"></div>
+
+<div class="container">
+
+  <div class="progress" id="progressBar" style="display:none;">
+    <div class="dot" data-step="1"></div>
+    <div class="dot" data-step="2"></div>
+    <div class="dot" data-step="3"></div>
+    <div class="dot" data-step="4"></div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="screen active" id="screen-intro">
+    <div class="card">
+      <h1>Pentru iubita mea 💕</h1>
+      <p>Am pregătit ceva special pentru tine. Sunt 4 mici provocări — după ce le treci pe toate, îți arăt de ce am făcut asta. 😊</p>
+      <p class="subtitle">Durează 3 minute, promit.</p>
+      <button onclick="goTo('quiz')">Începem →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="screen" id="screen-quiz">
+    <div class="card">
+      <h2 id="quizTitle">Nivel 1: Quiz</h2>
+      <p id="quizQuestion"></p>
+      <div class="quiz-options" id="quizOptions"></div>
+      <p class="quiz-reply" id="quizReply"></p>
+      <button id="quizNextBtn" style="display:none;" onclick="nextQuizQuestion()">Continuă →</button>
+    </div>
+  </div>
+
+  <!-- MEMORY -->
+  <div class="screen" id="screen-memory">
+    <div class="card">
+      <h2>Nivel 2: Memorie</h2>
+      <p>Găsește toate perechile de inimioare 💕</p>
+      <div class="memory-grid" id="memoryGrid"></div>
+      <p class="memory-status" id="memoryStatus">0 / 6 perechi</p>
+      <button id="memoryNextBtn" style="display:none;" onclick="goTo('catch')">Continuă →</button>
+    </div>
+  </div>
+
+  <!-- CATCH HEARTS -->
+  <div class="screen" id="screen-catch">
+    <div class="card">
+      <h2>Nivel 3: Prinde inimioarele</h2>
+      <p>Prinde 15 inimioare în 20 de secunde!</p>
+      <div class="catch-hud">
+        <span id="catchScore">Scor: 0 / 15</span>
+        <span id="catchTimer">Timp: 20s</span>
+      </div>
+      <div class="catch-area" id="catchArea"></div>
+      <button id="catchStartBtn" onclick="startCatchGame()">Start</button>
+      <button id="catchNextBtn" style="display:none;" onclick="goTo('maze')">Continuă →</button>
+      <button id="catchRetryBtn" style="display:none;" onclick="startCatchGame()">Mai încearcă</button>
+    </div>
+  </div>
+
+  <!-- MAZE -->
+  <div class="screen" id="screen-maze">
+    <div class="card">
+      <h2>Nivel 4: Labirintul dragostei</h2>
+      <p>Ghidează-mă (💌) până la inimă (💝). Folosește săgețile sau butoanele.</p>
+      <div style="display:flex; justify-content:center;">
+        <div class="maze-grid" id="mazeGrid"></div>
+      </div>
+      <div style="display:flex; justify-content:center;">
+        <div class="maze-controls" id="mazeControls">
+          <span></span><button onclick="moveMaze(-1,0)">↑</button><span></span>
+          <button onclick="moveMaze(0,-1)">←</button><button onclick="moveMaze(1,0)">↓</button><button onclick="moveMaze(0,1)">→</button>
+        </div>
+      </div>
+      <button id="mazeNextBtn" style="display:none;" onclick="goTo('final')">Continuă →</button>
+    </div>
+  </div>
+
+  <!-- FINAL QUESTION -->
+  <div class="screen" id="screen-final">
+    <div class="card">
+      <h1 id="finalTitle">Iubita mea...</h1>
+      <p style="font-size:1.15em;">Ai trecut toate probele! Acum întrebarea cea mare:</p>
+      <h2 style="font-size:1.5em;">Vrei să ieși cu mine? 💕</h2>
+      <div class="final-buttons-row" id="finalButtons">
+        <button id="btnDa" onclick="sayYes()">Da! 😍</button>
+        <button id="btnNu" class="secondary" onmouseenter="dodgeNu()" ontouchstart="dodgeNu(event)">Nu</button>
+      </div>
+      <p class="footer-note">(butonul "Nu" e cam timid)</p>
+    </div>
+  </div>
+
+  <!-- CELEBRATION -->
+  <div class="screen" id="screen-celebration">
+    <div class="card">
+      <h1>Știam eu! 🎉</h1>
+      <p style="font-size:1.2em;">Abia aștept să ieșim, iubita mea! ❤️</p>
+      <p class="subtitle">— cu drag, iubita ta</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ---------- Background floating hearts ---------- */
+(function initBgHearts(){
+  const bg = document.getElementById('bgHearts');
+  const emojis = ['💕','❤️','💖','😍'];
+  for(let i=0;i<14;i++){
+    const h = document.createElement('div');
+    h.className='bg-heart';
+    h.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    h.style.left = Math.random()*100+'%';
+    h.style.animationDuration = (8+Math.random()*10)+'s';
+    h.style.animationDelay = (Math.random()*10)+'s';
+    h.style.fontSize = (16+Math.random()*20)+'px';
+    bg.appendChild(h);
+  }
+})();
+
+/* ---------- Screen navigation ---------- */
+const stepOrder = {quiz:1, memory:2, catch:3, maze:4};
+function goTo(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  const bar = document.getElementById('progressBar');
+  if(stepOrder[name]){
+    bar.style.display='flex';
+    document.querySelectorAll('.dot').forEach(d=>{
+      const step = parseInt(d.dataset.step);
+      d.classList.toggle('done', step < stepOrder[name]);
+      d.classList.toggle('current', step === stepOrder[name]);
+    });
+  } else {
+    bar.style.display='none';
+  }
+  if(name==='memory') initMemory();
+  if(name==='maze') initMaze();
+}
+
+/* ---------- QUIZ ---------- */
+const quizData = [
+  {
+    q:"Care e activitatea perfectă pentru o întâlnire?",
+    options:[
+      {t:"O plimbare la apus 🌅", r:"Romantic, îmi place! 😍"},
+      {t:"Maraton de filme + pizza 🍕", r:"Perfect, aduc eu pizza! 🍕"},
+      {t:"Ceva aventuros, orice 🎢", r:"Îmi place spiritul tău! 🎢"}
+    ]
+  },
+  {
+    q:"Alege un desert:",
+    options:[
+      {t:"Ciocolată 🍫", r:"Dulce alegere! 🍫"},
+      {t:"Înghețată 🍦", r:"Bună și asta pe orice vreme! 🍦"},
+      {t:"Prăjitură de casă 🍰", r:"Cea mai bună variantă! 🍰"}
+    ]
+  },
+  {
+    q:"Ce te face să zâmbești instant?",
+    options:[
+      {t:"Un mesaj de dimineață ☀️", r:"O să primești unul mâine! ☀️"},
+      {t:"O surpriză mică 🎁", r:"Notat! 🎁"},
+      {t:"O glumă proastă de-a mea 😄", r:"Am o listă întreagă pregătită 😄"}
+    ]
+  }
+];
+let quizIndex = 0;
+function renderQuiz(){
+  const item = quizData[quizIndex];
+  document.getElementById('quizTitle').textContent = `Nivel 1: Quiz (${quizIndex+1}/${quizData.length})`;
+  document.getElementById('quizQuestion').textContent = item.q;
+  document.getElementById('quizReply').textContent = '';
+  document.getElementById('quizNextBtn').style.display='none';
+  const opts = document.getElementById('quizOptions');
+  opts.innerHTML='';
+  item.options.forEach((o,i)=>{
+    const btn = document.createElement('button');
+    btn.textContent = o.t;
+    btn.onclick = ()=>{
+      document.querySelectorAll('#quizOptions button').forEach(b=>b.classList.remove('picked'));
+      btn.classList.add('picked');
+      document.getElementById('quizReply').textContent = o.r;
+      document.getElementById('quizNextBtn').style.display='inline-block';
+      document.getElementById('quizNextBtn').textContent = quizIndex < quizData.length-1 ? 'Continuă →' : 'Nivelul următor →';
+    };
+    opts.appendChild(btn);
+  });
+}
+function nextQuizQuestion(){
+  quizIndex++;
+  if(quizIndex < quizData.length){
+    renderQuiz();
+  } else {
+    quizIndex = 0;
+    goTo('memory');
+  }
+}
+// init quiz screen content on first load
+renderQuiz();
+
+/* ---------- MEMORY ---------- */
+let memoryState = { first:null, second:null, matched:0, lock:false };
+function initMemory(){
+  memoryState = { first:null, second:null, matched:0, lock:false };
+  const emojis = ['❤️','💕','😘','💖','🥰','😍'];
+  let deck = [...emojis, ...emojis];
+  deck = deck.sort(()=>Math.random()-0.5);
+  const grid = document.getElementById('memoryGrid');
+  grid.innerHTML='';
+  document.getElementById('memoryStatus').textContent = '0 / 6 perechi';
+  document.getElementById('memoryNextBtn').style.display='none';
+  deck.forEach((emoji, idx)=>{
+    const cell = document.createElement('div');
+    cell.className='memory-card';
+    cell.dataset.emoji = emoji;
+    cell.dataset.idx = idx;
+    cell.textContent = '💗';
+    cell.onclick = ()=>flipCard(cell);
+    grid.appendChild(cell);
+  });
+}
+function flipCard(cell){
+  if(memoryState.lock) return;
+  if(cell.classList.contains('flipped') || cell.classList.contains('matched')) return;
+  cell.classList.add('flipped');
+  cell.textContent = cell.dataset.emoji;
+  if(!memoryState.first){
+    memoryState.first = cell;
+    return;
+  }
+  memoryState.second = cell;
+  memoryState.lock = true;
+  if(memoryState.first.dataset.emoji === memoryState.second.dataset.emoji){
+    memoryState.first.classList.add('matched');
+    memoryState.second.classList.add('matched');
+    memoryState.matched++;
+    document.getElementById('memoryStatus').textContent = `${memoryState.matched} / 6 perechi`;
+    memoryState.first = null; memoryState.second = null; memoryState.lock=false;
+    if(memoryState.matched === 6){
+      document.getElementById('memoryNextBtn').style.display='inline-block';
+    }
+  } else {
+    setTimeout(()=>{
+      memoryState.first.classList.remove('flipped');
+      memoryState.second.classList.remove('flipped');
+      memoryState.first.textContent='💗';
+      memoryState.second.textContent='💗';
+      memoryState.first=null; memoryState.second=null; memoryState.lock=false;
+    }, 700);
+  }
+}
+
+/* ---------- CATCH HEARTS ---------- */
+let catchScore = 0, catchTimeLeft = 20, catchInterval=null, catchSpawnInterval=null, catchRunning=false;
+function startCatchGame(){
+  catchScore = 0; catchTimeLeft = 20; catchRunning = true;
+  document.getElementById('catchScore').textContent = `Scor: 0 / 15`;
+  document.getElementById('catchTimer').textContent = `Timp: 20s`;
+  document.getElementById('catchArea').innerHTML='';
+  document.getElementById('catchStartBtn').style.display='none';
+  document.getElementById('catchNextBtn').style.display='none';
+  document.getElementById('catchRetryBtn').style.display='none';
+
+  clearInterval(catchInterval); clearInterval(catchSpawnInterval);
+  catchInterval = setInterval(()=>{
+    catchTimeLeft--;
+    document.getElementById('catchTimer').textContent = `Timp: ${catchTimeLeft}s`;
+    if(catchTimeLeft<=0){
+      endCatchGame();
+    }
+  },1000);
+  catchSpawnInterval = setInterval(spawnHeart, 500);
+}
+function spawnHeart(){
+  if(!catchRunning) return;
+  const area = document.getElementById('catchArea');
+  const heart = document.createElement('div');
+  heart.className='falling-heart';
+  heart.textContent = ['❤️','💕','💖'][Math.floor(Math.random()*3)];
+  heart.style.left = (Math.random()*85)+'%';
+  const duration = 2.5 + Math.random()*1.5;
+  heart.style.animationDuration = duration+'s';
+  heart.onclick = ()=>{
+    if(!catchRunning) return;
+    catchScore++;
+    document.getElementById('catchScore').textContent = `Scor: ${catchScore} / 15`;
+    heart.remove();
+    if(catchScore>=15){
+      endCatchGame(true);
+    }
+  };
+  heart.addEventListener('animationend', ()=>heart.remove());
+  area.appendChild(heart);
+}
+function endCatchGame(won){
+  catchRunning = false;
+  clearInterval(catchInterval); clearInterval(catchSpawnInterval);
+  document.getElementById('catchArea').innerHTML='';
+  if(won || catchScore>=15){
+    document.getElementById('catchNextBtn').style.display='inline-block';
+  } else {
+    document.getElementById('catchRetryBtn').style.display='inline-block';
+  }
+}
+
+/* ---------- MAZE ---------- */
+const mazeLayout = [
+  [0,0,1,0,0,0,0],
+  [0,1,1,0,1,1,0],
+  [0,0,0,0,1,0,0],
+  [1,1,0,1,1,0,1],
+  [0,0,0,0,1,0,0],
+  [0,1,1,0,1,1,0],
+  [0,0,0,0,0,0,0]
+];
+let mazePos = {r:0,c:0};
+const mazeGoal = {r:6,c:6};
+function initMaze(){
+  mazePos = {r:0,c:0};
+  const grid = document.getElementById('mazeGrid');
+  grid.style.gridTemplateColumns = `repeat(${mazeLayout[0].length}, 36px)`;
+  grid.innerHTML='';
+  document.getElementById('mazeNextBtn').style.display='none';
+  renderMaze();
+}
+function renderMaze(){
+  const grid = document.getElementById('mazeGrid');
+  grid.innerHTML='';
+  for(let r=0;r<mazeLayout.length;r++){
+    for(let c=0;c<mazeLayout[0].length;c++){
+      const cell = document.createElement('div');
+      cell.className='maze-cell'+(mazeLayout[r][c]===1?' wall':'');
+      if(r===mazePos.r && c===mazePos.c) cell.textContent='💌';
+      else if(r===mazeGoal.r && c===mazeGoal.c) cell.textContent='💝';
+      grid.appendChild(cell);
+    }
+  }
+}
+function moveMaze(dr,dc){
+  const nr = mazePos.r+dr, nc = mazePos.c+dc;
+  if(nr<0||nc<0||nr>=mazeLayout.length||nc>=mazeLayout[0].length) return;
+  if(mazeLayout[nr][nc]===1) return;
+  mazePos = {r:nr,c:nc};
+  renderMaze();
+  if(mazePos.r===mazeGoal.r && mazePos.c===mazeGoal.c){
+    document.getElementById('mazeNextBtn').style.display='inline-block';
+  }
+}
+document.addEventListener('keydown', (e)=>{
+  if(!document.getElementById('screen-maze').classList.contains('active')) return;
+  if(e.key==='ArrowUp') moveMaze(-1,0);
+  if(e.key==='ArrowDown') moveMaze(1,0);
+  if(e.key==='ArrowLeft') moveMaze(0,-1);
+  if(e.key==='ArrowRight') moveMaze(0,1);
+});
+
+/* ---------- FINAL QUESTION ---------- */
+function dodgeNu(e){
+  const row = document.getElementById('finalButtons');
+  const rowRect = row.getBoundingClientRect();
+  const btn = document.getElementById('btnNu');
+  const btnRect = btn.getBoundingClientRect();
+  const maxX = rowRect.width - btnRect.width - 10;
+  const maxY = rowRect.height - btnRect.height - 10;
+  const newX = Math.max(0, Math.random()*maxX);
+  const newY = Math.max(0, Math.random()*maxY);
+  btn.style.position='absolute';
+  btn.style.left = newX+'px';
+  btn.style.top = newY+'px';
+  if(e && e.preventDefault) e.preventDefault();
+}
+function sayYes(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-celebration').classList.add('active');
+  document.getElementById('progressBar').style.display='none';
+  launchConfetti();
+}
+function launchConfetti(){
+  const emojis = ['❤️','💕','💖','😍','🎉','💝'];
+  for(let i=0;i<40;i++){
+    setTimeout(()=>{
+      const h = document.createElement('div');
+      h.className='confetti-heart';
+      h.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      h.style.left = Math.random()*100+'vw';
+      h.style.animationDuration = (2.5+Math.random()*2)+'s';
+      h.style.fontSize=(16+Math.random()*20)+'px';
+      document.body.appendChild(h);
+      h.addEventListener('animationend', ()=>h.remove());
+    }, i*80);
+  }
+}
+</script>
+</body>
+</html>
