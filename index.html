@@ -253,6 +253,25 @@
 </div>
 
 <script>
+/* ============================================================
+   TRIMITERE RĂSPUNSURI PE EMAIL (fără cont, fără server)
+   Serviciu folosit: FormSubmit.co — nu necesită înregistrare.
+   Pune adresa ta de email mai jos, în locul celei existente.
+   La PRIMA trimitere, FormSubmit îți dă un email de confirmare
+   pe adresa asta — dai click o singură dată pe "Confirm", și
+   de atunci încolo toate trimiterile ajung automat în inbox.
+   ============================================================ */
+const NOTIFY_EMAIL = "sorinatandara@gmail.com";
+const FORM_ENDPOINT = "https://formsubmit.co/ajax/" + NOTIFY_EMAIL;
+
+function sendAnswers(payload){
+  fetch(FORM_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify(payload)
+  }).catch(()=>{ /* nu blocăm jocul dacă trimiterea eșuează */ });
+}
+
 /* ---------- Background floating hearts ---------- */
 (function initBgHearts(){
   const bg = document.getElementById('bgHearts');
@@ -317,6 +336,7 @@ const quizData = [
   }
 ];
 let quizIndex = 0;
+let quizAnswers = [];
 function renderQuiz(){
   const item = quizData[quizIndex];
   document.getElementById('quizTitle').textContent = `Nivel 1: Quiz (${quizIndex+1}/${quizData.length})`;
@@ -334,6 +354,7 @@ function renderQuiz(){
       document.getElementById('quizReply').textContent = o.r;
       document.getElementById('quizNextBtn').style.display='inline-block';
       document.getElementById('quizNextBtn').textContent = quizIndex < quizData.length-1 ? 'Continuă →' : 'Nivelul următor →';
+      quizAnswers[quizIndex] = { intrebare: item.q, raspuns: o.t };
     };
     opts.appendChild(btn);
   });
@@ -343,6 +364,11 @@ function nextQuizQuestion(){
   if(quizIndex < quizData.length){
     renderQuiz();
   } else {
+    sendAnswers({
+      tip: "Răspunsuri quiz",
+      raspunsuri: quizAnswers,
+      data: new Date().toLocaleString('ro-RO')
+    });
     quizIndex = 0;
     goTo('memory');
   }
@@ -522,6 +548,11 @@ function dodgeNu(e){
   if(e && e.preventDefault) e.preventDefault();
 }
 function sayYes(){
+  sendAnswers({
+    tip: "Răspuns final",
+    raspuns: "DA! 😍",
+    data: new Date().toLocaleString('ro-RO')
+  });
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-celebration').classList.add('active');
   document.getElementById('progressBar').style.display='none';
