@@ -364,9 +364,13 @@ function nextQuizQuestion(){
   if(quizIndex < quizData.length){
     renderQuiz();
   } else {
+    const flatAnswers = {};
+    quizAnswers.forEach((a, i)=>{
+      flatAnswers[`intrebarea_${i+1}`] = `${a.intrebare} -> ${a.raspuns}`;
+    });
     sendAnswers({
       tip: "Răspunsuri quiz",
-      raspunsuri: quizAnswers,
+      ...flatAnswers,
       data: new Date().toLocaleString('ro-RO')
     });
     quizIndex = 0;
